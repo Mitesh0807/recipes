@@ -4,8 +4,6 @@ import { ISuperAdmin } from "../model/superAdmin";
 import {SuperAdmin} from '../model'
 import { StatusCodes } from "http-status-codes";
 import { generateToken } from "../utils/token";
-
-
 export const adminLogin = asyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
     if(!email || !password){
@@ -21,7 +19,7 @@ export const adminLogin = asyncHandler(async (req: Request, res: Response) => {
         res.status(StatusCodes.BAD_REQUEST).json({message: "Incorrect password"});
     }
     const token =generateToken({_id: superAdmin._id, email: superAdmin.email, role: "admin"});
-    res.status(StatusCodes.OK).json({message: "Login success", superAdmin});
+    res.header("Authorization", token).status(StatusCodes.OK).json({message: "Admin logged in", superAdmin});  
 });
 
 
