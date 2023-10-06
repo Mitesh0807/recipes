@@ -16,7 +16,6 @@ const slugGenrator = async <T extends modelType>(slug: string, db: Model<T>): Pr
     /* Check if slug already exists */
     const rgexSlug = new RegExp(slugRegex);
     const slugExists = await db.find({slug: rgexSlug});
-    console.log(slugExists);
     const slugArray =slugExists.map((item: T) => item.slug);
     if (slugExists && slugArray.length > 0) {
         const newSlugSuggestion = slug + "_" + Math.floor(Math.random() * 1000);
@@ -26,6 +25,5 @@ const slugGenrator = async <T extends modelType>(slug: string, db: Model<T>): Pr
     }
     return slug;
 };
-
-
 export default slugGenrator;
+
