@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 import asyncHandler from "express-async-handler";
 import { StatusCodes } from "http-status-codes";
 import  Category  from "../model/category";
+import  SlugGenrator  from "../utils/slug";
 
 /*
  *Curd operation with category 
@@ -14,7 +15,10 @@ export const createCategory = asyncHandler(async (req: Request, res: Response) =
   } 
   const categorySlug = await Category.findOne({ slug });
   if (categorySlug) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: "Category already exists same slug "});
+      const newSlug =await SlugGenrator(slug, Category);
+      console.log(newSlug, slug);
+      res.status(StatusCodes.BAD_REQUEST).json({ message: "Category already exists same slug ", slugSegged: newSlug });
+      return;
   } 
   const nameExist = await Category.findOne({ name });
   if (nameExist) {
