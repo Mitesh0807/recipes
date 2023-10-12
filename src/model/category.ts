@@ -13,7 +13,7 @@ export interface ICategory extends Document {
 }
 
 const CategorySchema: Schema = new mongoose.Schema<ICategory>({
-  name: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
   isActive: { type: Boolean, default: true },
   img_Base64: { type: String , required: true},
   slug: { type: String, required: true, unique: true },

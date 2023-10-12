@@ -26,4 +26,3 @@ const slugGenrator = async <T extends modelType>(slug: string, db: Model<T>): Pr
     return slug;
 };
 export default slugGenrator;
-

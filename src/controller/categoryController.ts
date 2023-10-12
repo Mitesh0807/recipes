@@ -20,10 +20,6 @@ export const createCategory = asyncHandler(async (req: Request, res: Response) =
       res.status(StatusCodes.BAD_REQUEST).json({ message: "Category already exists same slug ", slugSegged: newSlug });
       return;
   } 
-  const nameExist = await Category.findOne({ name });
-  if (nameExist) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: "Category already exists same name" });
-  }
   const category = await Category.create({ name, img_Base64, slug });
   res.status(201).json({ message: "Category created", category });
 });
@@ -36,6 +32,7 @@ export const getAllCategories = asyncHandler(async (req: Request, res: Response)
     return;
   }
   res.status(StatusCodes.OK).json({ categories });
+  return;
 });
 
 
@@ -72,7 +69,6 @@ export const getCategory = asyncHandler(async (req: Request, res: Response) => {
   }
   if(name && !slug){
     const searchTerm = new RegExp(`^${name}` , 'i');
-    // const category = await Category.find("name":{$regex:name , $options:"i"});
     const category = await Category.find({ name: searchTerm });
     if (!category) {
       res.status(StatusCodes.NOT_FOUND).json({ message: "Category not found" });

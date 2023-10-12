@@ -6,7 +6,11 @@ const app = express();
 import cors from "cors";
 import router from "./routes";
 connectToDb();
-app.use(cors());
+app.use(cors({
+  origin:"*",
+  credentials:true,
+  exposedHeaders:"Authorization"
+}));
 app.use(express.json());
 app.use("/", router);
 
