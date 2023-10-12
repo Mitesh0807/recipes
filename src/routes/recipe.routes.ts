@@ -6,3 +6,4 @@ import authMiddleware from "../middleware/authMiddleware";
 
 recipeRouter.route("/").get(getRecipeByQuery).post(authMiddleware,createRecipe);
 recipeRouter.route("/:_id").put(updateRecipe);
+export default recipeRouter;
