@@ -4,5 +4,5 @@ import { createCategory, getAllCategories, getCategory, updateCategory, deleteCa
 import authMiddleware from "../middleware/authMiddleware";
 categoryRouter.route("/").get(getAllCategories).post(authMiddleware, createCategory);
 categoryRouter.route("/getCategory").post(getCategory);
-categoryRouter.route("/:_id").put(updateCategory).delete(deleteCategory);
+categoryRouter.route("/:_id").put(authMiddleware,updateCategory).delete(authMiddleware,deleteCategory);
 export default categoryRouter;

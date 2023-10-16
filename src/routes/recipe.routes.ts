@@ -5,5 +5,5 @@ import { createRecipe, getRecipeByQuery, updateRecipe} from "../controller/recip
 import authMiddleware from "../middleware/authMiddleware";
 
 recipeRouter.route("/").get(getRecipeByQuery).post(authMiddleware,createRecipe);
-recipeRouter.route("/:_id").put(updateRecipe);
+recipeRouter.route("/:_id").put(authMiddleware,updateRecipe);
 export default recipeRouter;

@@ -10,8 +10,9 @@ import  SlugGenrator  from "../utils/slug";
 
 export const createCategory = asyncHandler(async (req: Request, res: Response) => {
   const { name, img_Base64, slug,subName, description } = req.body;
-  if (!name || !img_Base64 || !slug || subName || description || slug.length < 3 || name.length < 3 || img_Base64.length < 3 || subName.length < 3 || description.length < 3) {
+  if (!name || !img_Base64 || !slug || !subName || !description || slug.length < 3 || name.length < 3 || img_Base64.length < 3 || subName.length < 3 || description.length < 3) {
     res.status(StatusCodes.BAD_REQUEST).json({ message: "All fields are required" });
+    return;
   }
   const categorySlug = await Category.findOne({ slug });
   if (categorySlug) {
@@ -20,7 +21,7 @@ export const createCategory = asyncHandler(async (req: Request, res: Response) =
       res.status(StatusCodes.BAD_REQUEST).json({ message: "Category already exists same slug ", slugSegged: newSlug });
       return;
   } 
-  const category = await Category.create({ name, img_Base64, slug });
+  const category = await Category.create({ name, img_Base64, slug, subName, description });
   res.status(201).json({ message: "Category created", category });
 });
 
