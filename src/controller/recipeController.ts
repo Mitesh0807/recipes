@@ -2,9 +2,9 @@
 import { Response, Request } from "express";
 import asyncHandler from "express-async-handler";
 import { StatusCodes } from "http-status-codes";
-import  Category  from "../model/category";
-import  SlugGenrator  from "../utils/slug";
-import  Recipe  from "../model/recipe";
+import Category from "../model/category";
+import SlugGenrator from "../utils/slug";
+import Recipe from "../model/recipe";
 /*
  * Curd operation with Recipe
  * create 
@@ -23,9 +23,9 @@ export const createRecipe = asyncHandler(async (req: Request, res: Response) => 
   }
   const recipeSlug = await Recipe.findOne({ slug });
   if (recipeSlug) {
-      const newSlug =await SlugGenrator(slug, Recipe);
-      res.status(StatusCodes.BAD_REQUEST).json({ message: "Recipe already exists same slug ", slugSegged: newSlug });
-      return;
+    const newSlug = await SlugGenrator(slug, Recipe);
+    res.status(StatusCodes.BAD_REQUEST).json({ message: "Recipe already exists same slug ", slugSegged: newSlug });
+    return;
   }
   const recipe = await Recipe.create({ name, img_Base64, slug, categoryId, description, cookingTime, ingredients });
   res.status(201).json({ message: "Recipe created", recipe });
@@ -34,25 +34,39 @@ export const createRecipe = asyncHandler(async (req: Request, res: Response) => 
 
 
 export const getRecipeByQuery = asyncHandler(async (req: Request, res: Response) => {
-  const { slug, name } = req.query;
-  if (!slug && !name) {
-    const recipe = await Recipe.find();
-    res.status(StatusCodes.OK).json({ recipe });
-    return;
-  }
- if (slug && name) {
-    res.status(StatusCodes.BAD_REQUEST).json({ message: "Only one field is required in query" });
-    return;
-  }
-  if (slug  && !name) {
-    const searchTerm = new RegExp(`^${slug}` , 'i');
-    const recipe = await Recipe.find({ slug: searchTerm });
-    if (!recipe) {
-      res.status(StatusCodes.NOT_FOUND).json({ message: "Recipe not found" });
+  const { slug, name, pageNumber = 1, limit = 10 } = req.query;
+  let query: any = {}; 
+  try {
+    // if (!slug && !name) {
+    //   const recipes = await Recipe.find();
+    //   res.status(StatusCodes.OK).json({ recipes });
+    //   return;
+    // }
+    if (slug && name) {
+      res.status(StatusCodes.BAD_REQUEST).json({ message: "Only one field is required in the query" });
       return;
     }
-    res.status(StatusCodes.OK).json({ recipe });
-    return;
+    if (slug && !name) {
+      query = {
+        ...query,
+        slug: new RegExp(`^${slug}`, 'i')
+      }
+    }
+    if (name && !slug) {
+      query = {
+        ...query,
+        name: new RegExp(`^${name}`, 'i')
+      }
+    }
+    const totalCount = await Recipe.countDocuments({});
+    const recipes = await Recipe.find(query)
+      .skip((Number(pageNumber) - 1) * Number(limit))
+      .sort({ _id: -1 })
+      .populate('categoryId');
+    res.status(StatusCodes.OK).json({ count: totalCount, recipes });
+  } catch (error) {
+    console.error('Error in getRecipeByQuery:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
   }
 });
 
@@ -76,7 +90,7 @@ export const updateRecipe = asyncHandler(async (req: Request, res: Response) => 
     res.status(StatusCodes.NOT_FOUND).json({ message: "Recipe not found" });
     return;
   }
-  if(!name && !img_Base64 && !slug && !categoryId && !description && !cookingTime && !ingredients){
+  if (!name && !img_Base64 && !slug && !categoryId && !description && !cookingTime && !ingredients) {
     res.status(StatusCodes.BAD_REQUEST).json({ message: "At least one field is required" });
     return;
   }
@@ -89,6 +103,6 @@ export const updateRecipe = asyncHandler(async (req: Request, res: Response) => 
   recipe.ingredients = ingredients || recipe.ingredients;
   await recipe.save();
   res.status(StatusCodes.OK).json({ message: "Recipe updated", recipe });
-  return ;
+  return;
 });
 

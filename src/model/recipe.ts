@@ -16,19 +16,24 @@ export interface IRecipe extends Document {
     updatedAt: Date;
     img_Base64: string;
     slug: string;
-    categoryId: ICategory;
+    additionalNotes: string;
+    categoryId: ICategory[];
     ingredients: IRecipe[];
     description: string;
     cookingTime: string;
 }
 
-
+//name, img_Base64, slug, categoryId, description, cookingTime, ingredients,additionalNotes
 const RecipeSchema: Schema = new mongoose.Schema<IRecipe>({
     name: { type: String, required: true },
     isActive: { type: Boolean, default: true },
     img_Base64: { type: String },
     slug: { type: String, required: true, unique: true },
-    categoryId: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+    categoryId: { 
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "Category",
+        required: true
+    },
     ingredients: {
         type: [Object],
         of: {
@@ -43,6 +48,7 @@ const RecipeSchema: Schema = new mongoose.Schema<IRecipe>({
         }
         , default: [], required: true
     },
+    additionalNotes:{ type: String },
     description: { type: String, required: true },
     cookingTime: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
@@ -51,3 +57,4 @@ const RecipeSchema: Schema = new mongoose.Schema<IRecipe>({
 
 
 export default mongoose.model<IRecipe>("Recipe", RecipeSchema);
+
