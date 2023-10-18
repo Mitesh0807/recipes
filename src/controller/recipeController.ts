@@ -16,7 +16,7 @@ import Recipe from "../model/recipe";
 
 
 export const createRecipe = asyncHandler(async (req: Request, res: Response) => {
-  const { name, img_Base64, slug, categoryId, description, cookingTime, ingredients } = req.body;
+  const { name, img_Base64, slug, categoryId, description, cookingTime, ingredients,additionalNotes } = req.body;
   if (!name || !slug || !categoryId || !description || !cookingTime || !ingredients) {
     res.status(StatusCodes.BAD_REQUEST).json({ message: "All fields are required" });
     return;
@@ -27,7 +27,7 @@ export const createRecipe = asyncHandler(async (req: Request, res: Response) => 
     res.status(StatusCodes.BAD_REQUEST).json({ message: "Recipe already exists same slug ", slugSegged: newSlug });
     return;
   }
-  const recipe = await Recipe.create({ name, img_Base64, slug, categoryId, description, cookingTime, ingredients });
+  const recipe = await Recipe.create({ name, img_Base64, slug, categoryId, description, cookingTime, ingredients ,additionalNotes});
   res.status(201).json({ message: "Recipe created", recipe });
   return;
 });
