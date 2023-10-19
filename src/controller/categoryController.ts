@@ -99,8 +99,8 @@ export const updateCategory = asyncHandler(async (req: Request, res: Response) =
   category.name = name;
   category.img_Base64 = img_Base64;
   category.slug = slug;
-  await category.save();
-  res.status(StatusCodes.OK).json({ message: "Category updated", category });
+  const res1 = await Category.updateOne({ _id }, req.body);
+  res.status(StatusCodes.OK).json({ message: "Category updated", res1 });
 });
 
 export const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
