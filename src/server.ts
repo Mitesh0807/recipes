@@ -12,6 +12,7 @@ app.use(cors({
   exposedHeaders:"Authorization",
   methods:"GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
 }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/", router);
 
