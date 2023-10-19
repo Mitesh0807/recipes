@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import Category from "../model/category";
 import SlugGenrator from "../utils/slug";
 import Recipe from "../model/recipe";
+import mongoose from "mongoose";
 /*
  * Curd operation with Recipe
  * create 
@@ -72,6 +73,10 @@ export const getRecipeByQuery = asyncHandler(async (req: Request, res: Response)
 
 export const getRecipeById = asyncHandler(async (req: Request, res: Response) => {
   const { _id } = req.params;
+  if(!_id || !mongoose.Types.ObjectId.isValid(_id)){
+    res.status(StatusCodes.BAD_REQUEST).json({ message: "Invalid id" });
+    return;
+  }
   const recipe = await Recipe.findById(_id);
   if (!recipe) {
     res.status(StatusCodes.NOT_FOUND).json({ message: "Recipe not found" });
