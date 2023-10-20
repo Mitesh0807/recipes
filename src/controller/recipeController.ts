@@ -111,3 +111,18 @@ export const updateRecipe = asyncHandler(async (req: Request, res: Response) => 
   return;
 });
 
+export const deleteRecipe = asyncHandler(async (req: Request, res: Response) => {
+  const { _id } = req.params;
+  if(!_id || !mongoose.Types.ObjectId.isValid(_id)){
+    res.status(StatusCodes.BAD_REQUEST).json({ message: "Invalid id" });
+    return;
+  }
+  const recipe = await Recipe.findById(_id);
+  if (!recipe) {
+    res.status(StatusCodes.NOT_FOUND).json({ message: "Recipe not found" });
+    return;
+  }
+  await Recipe.findByIdAndDelete(_id);
+  res.status(StatusCodes.OK).json({ message: "Recipe deleted" });
+  return;
+})

@@ -96,9 +96,9 @@ export const updateCategory = asyncHandler(async (req: Request, res: Response) =
     res.status(StatusCodes.NOT_FOUND).json({ message: "Category not found" });
     return;
   }
-  category.name = name;
-  category.img_Base64 = img_Base64;
-  category.slug = slug;
+  // category.name = name;
+  // category.img_Base64 = img_Base64;
+  // category.slug = slug;
   const res1 = await Category.updateOne({ _id }, req.body);
   res.status(StatusCodes.OK).json({ message: "Category updated", res1 });
 });
