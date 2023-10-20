@@ -91,8 +91,8 @@ export const updateRecipe = asyncHandler(async (req: Request, res: Response) => 
   recipe.description = description || recipe.description;
   recipe.cookingTime = cookingTime || recipe.cookingTime;
   recipe.ingredients = ingredients || recipe.ingredients;
-  await recipe.save();
-  res.status(StatusCodes.OK).json({ message: "Recipe updated", recipe });
+  const response = await Recipe.updateOne({ _id }, req.body);
+  res.status(StatusCodes.OK).json({ message: "Recipe updated", recipe: response });
   return;
 });
 
