@@ -17,7 +17,7 @@ import mongoose from "mongoose";
 
 
 export const createRecipe = asyncHandler(async (req: Request, res: Response) => {
-  const { name, img_Base64, slug, categoryId, description, cookingTime, ingredients,additionalNotes } = req.body;
+  const { name, img_Base64, slug, categoryId, description, cookingTime, ingredients, additionalNotes } = req.body;
   if (!name || !slug || !categoryId || !description || !cookingTime || !ingredients) {
     res.status(StatusCodes.BAD_REQUEST).json({ message: "All fields are required" });
     return;
@@ -28,39 +28,24 @@ export const createRecipe = asyncHandler(async (req: Request, res: Response) => 
     res.status(StatusCodes.BAD_REQUEST).json({ message: "Recipe already exists same slug ", slugSegged: newSlug });
     return;
   }
-  const recipe = await Recipe.create({ name, img_Base64, slug, categoryId, description, cookingTime, ingredients ,additionalNotes});
+  const recipe = await Recipe.create({ name, img_Base64, slug, categoryId, description, cookingTime, ingredients, additionalNotes });
   res.status(201).json({ message: "Recipe created", recipe });
   return;
 });
 
 
 export const getRecipeByQuery = asyncHandler(async (req: Request, res: Response) => {
-  const { slug, name, pageNumber = 1, limit = 10 } = req.query;
-  let query: any = {}; 
+  const { searchTerm, pageNumber = 1, limit = 10 } = req.query;
   try {
-    // if (!slug && !name) {
-    //   const recipes = await Recipe.find();
-    //   res.status(StatusCodes.OK).json({ recipes });
-    //   return;
-    // }
-    if (slug && name) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: "Only one field is required in the query" });
+    if (searchTerm && !!searchTerm) {
+      const searchRegex = new RegExp(`^${searchTerm}`, 'i');
+      const totalCount = await Recipe.countDocuments({ name: searchRegex });
+      const recipes = await Recipe.find({ $or: [{ name: searchRegex }, { slug: searchRegex }] }).skip((Number(pageNumber) - 1) * Number(limit)).sort({ _id: -1 }).populate('categoryId');
+      res.status(StatusCodes.OK).json({ count: totalCount, recipes });
       return;
     }
-    if (slug && !name) {
-      query = {
-        ...query,
-        slug: new RegExp(`^${slug}`, 'i')
-      }
-    }
-    if (name && !slug) {
-      query = {
-        ...query,
-        name: new RegExp(`^${name}`, 'i')
-      }
-    }
     const totalCount = await Recipe.countDocuments({});
-    const recipes = await Recipe.find(query)
+    const recipes = await Recipe.find({})
       .skip((Number(pageNumber) - 1) * Number(limit))
       .sort({ _id: -1 })
       .populate('categoryId');
@@ -73,7 +58,7 @@ export const getRecipeByQuery = asyncHandler(async (req: Request, res: Response)
 
 export const getRecipeById = asyncHandler(async (req: Request, res: Response) => {
   const { _id } = req.params;
-  if(!_id || !mongoose.Types.ObjectId.isValid(_id)){
+  if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
     res.status(StatusCodes.BAD_REQUEST).json({ message: "Invalid id" });
     return;
   }
@@ -113,7 +98,7 @@ export const updateRecipe = asyncHandler(async (req: Request, res: Response) => 
 
 export const deleteRecipe = asyncHandler(async (req: Request, res: Response) => {
   const { _id } = req.params;
-  if(!_id || !mongoose.Types.ObjectId.isValid(_id)){
+  if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
     res.status(StatusCodes.BAD_REQUEST).json({ message: "Invalid id" });
     return;
   }

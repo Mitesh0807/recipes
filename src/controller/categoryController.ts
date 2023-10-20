@@ -27,12 +27,25 @@ export const createCategory = asyncHandler(async (req: Request, res: Response) =
 
 
 export const getAllCategories = asyncHandler(async (req: Request, res: Response) => {
-  const categories = await Category.find();
+  const { pageNumber = 1, limit = 10,searchTerm } = req.query;
+ if(searchTerm && !!searchTerm){
+  const searchRegex = new RegExp(`^${searchTerm}`, 'i');
+  const totalCount = await Category.countDocuments({ name: searchRegex });
+  const categories = await Category.find({ $or: [{ name: searchRegex }, { slug: searchRegex }] }).skip((Number(pageNumber) - 1) * Number(limit)).sort({ _id: -1 });
   if (!categories || categories.length === 0) {
     res.status(StatusCodes.NOT_FOUND).json({ message: "Categories not found" })
     return;
   }
-  res.status(StatusCodes.OK).json({ categories });
+  res.status(StatusCodes.OK).json({ count: totalCount, categories });
+  return;
+ }
+ const totalCount = await Category.countDocuments({});
+  const categories = await Category.find({}).skip((Number(pageNumber) - 1) * Number(limit)).sort({ _id: -1 });
+  if (!categories || categories.length === 0) {
+    res.status(StatusCodes.NOT_FOUND).json({ message: "Categories not found" })
+    return;
+  }
+  res.status(StatusCodes.OK).json({ count: totalCount,categories });
   return;
 });
 
