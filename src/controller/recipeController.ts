@@ -42,12 +42,10 @@ export const createRecipe = asyncHandler(
     const recipeSlug = await Recipe.findOne({ slug });
     if (recipeSlug) {
       const newSlug = await SlugGenrator(slug, Recipe);
-      res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({
-          message: "Recipe already exists same slug ",
-          slugSegged: newSlug,
-        });
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: "Recipe already exists same slug ",
+        slugSegged: newSlug,
+      });
       return;
     }
     const recipe = await Recipe.create({
@@ -71,7 +69,9 @@ export const getRecipeByQuery = asyncHandler(
     try {
       if (searchTerm && !!searchTerm) {
         const searchRegex = new RegExp(`^${searchTerm}`, "i");
-        const totalCount = await Recipe.countDocuments({ name: searchRegex });
+        const totalCount = await Recipe.countDocuments({
+          $or: [{ name: searchRegex }, { slug: searchRegex }],
+        });
         const recipes = await Recipe.find({
           $or: [{ name: searchRegex }, { slug: searchRegex }],
         })
