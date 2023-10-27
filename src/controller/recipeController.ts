@@ -76,6 +76,7 @@ export const getRecipeByQuery = asyncHandler(
           $or: [{ name: searchRegex }, { slug: searchRegex }],
         })
           .skip((Number(pageNumber) - 1) * Number(limit))
+          .limit(Number(limit))
           .sort({ _id: -1 })
           .populate("categoryId");
         res.status(StatusCodes.OK).json({ count: totalCount, recipes });
@@ -84,6 +85,7 @@ export const getRecipeByQuery = asyncHandler(
       const totalCount = await Recipe.countDocuments({});
       const recipes = await Recipe.find({})
         .skip((Number(pageNumber) - 1) * Number(limit))
+        .limit(Number(limit))
         .sort({ _id: -1 })
         .populate("categoryId");
       res.status(StatusCodes.OK).json({ count: totalCount, recipes });

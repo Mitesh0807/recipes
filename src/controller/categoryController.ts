@@ -32,12 +32,10 @@ export const createCategory = asyncHandler(
     if (categorySlug) {
       const newSlug = await SlugGenrator(slug, Category);
       console.log(newSlug, slug);
-      res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({
-          message: "Category already exists same slug ",
-          slugSegged: newSlug,
-        });
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: "Category already exists same slug ",
+        slugSegged: newSlug,
+      });
       return;
     }
     const category = await Category.create({
@@ -63,6 +61,7 @@ export const getAllCategories = asyncHandler(
         $or: [{ name: searchRegex }, { slug: searchRegex }],
       })
         .skip((Number(pageNumber) - 1) * Number(limit))
+        .limit(Number(limit))
         .sort({ _id: -1 });
       if (!categories || categories.length === 0) {
         res
@@ -76,6 +75,7 @@ export const getAllCategories = asyncHandler(
     const totalCount = await Category.countDocuments({});
     const categories = await Category.find({})
       .skip((Number(pageNumber) - 1) * Number(limit))
+      .limit(Number(limit))
       .sort({ _id: -1 });
     if (!categories || categories.length === 0) {
       res
