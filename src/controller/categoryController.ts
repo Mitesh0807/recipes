@@ -155,8 +155,12 @@ export const updateCategory = asyncHandler(
     // category.name = name;
     // category.img_Base64 = img_Base64;
     // category.slug = slug;
-    const res1 = await Category.updateOne({ _id }, req.body);
-    res.status(StatusCodes.OK).json({ message: "Category updated", res1 });
+    const res1 = await Category.updateOne({ _id }, req.body, {
+      new: true,
+    });
+    res
+      .status(StatusCodes.OK)
+      .json({ message: "Category updated", category: res1 });
   }
 );
 
