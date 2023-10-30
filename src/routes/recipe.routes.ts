@@ -6,6 +6,7 @@ import {
   getRecipeById,
   getRecipeByQuery,
   updateRecipe,
+  getRecipeBySlug,
 } from "../controller/recipeController";
 import authMiddleware from "../middleware/authMiddleware";
 
@@ -15,7 +16,9 @@ recipeRouter
   .post(authMiddleware, createRecipe);
 recipeRouter
   .route("/:_id")
-  .put(updateRecipe)
+  .put(authMiddleware, updateRecipe)
   .get(getRecipeById)
   .delete(authMiddleware, deleteRecipe);
+recipeRouter.route("/getRecipeBySlug/:slug").get(getRecipeBySlug);
+
 export default recipeRouter;
