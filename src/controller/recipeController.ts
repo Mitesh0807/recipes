@@ -169,7 +169,7 @@ const pipelineGenrator = (
         },
       },
       {
-        $unset: "$category",
+        $unwind: "$category",
       },
     ];
     return pipeline;
