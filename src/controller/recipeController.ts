@@ -65,17 +65,24 @@ export const createRecipe = asyncHandler(
 const pipelineGenrator = (
   isCategory: boolean,
   isSearch: boolean,
-  categoryId?: string,
+  categoryId?: string[],
   searchTerm?: string
 ) => {
   let pipeline;
   console.log(isCategory, isSearch, categoryId, searchTerm);
-  if (isCategory && isSearch && categoryId) {
+  //multiple category
+
+  const validIdString = categoryId?.map((id) => {
+    return new mongoose.Types.ObjectId(id);
+  });
+  if (isCategory && isSearch && validIdString && validIdString.length > 0) {
     console.log("category and search");
     pipeline = [
       {
         $match: {
-          categoryId: new mongoose.Types.ObjectId(categoryId.toString()),
+          categoryId: {
+            $in: validIdString,
+          },
         },
       },
       {
@@ -99,12 +106,19 @@ const pipelineGenrator = (
       },
     ];
     return pipeline;
-  } else if (isCategory && categoryId && !isSearch) {
-    console.log("category ");
+  } else if (
+    isCategory &&
+    validIdString &&
+    !isSearch &&
+    validIdString.length > 0
+  ) {
+    console.log("category ", validIdString);
     pipeline = [
       {
         $match: {
-          categoryId: new mongoose.Types.ObjectId(categoryId.toString()),
+          categoryId: {
+            $in: validIdString,
+          },
         },
       },
       {
@@ -167,14 +181,31 @@ export const getRecipeByQuery = asyncHandler(
     let pipeline;
     let isCategory = false;
     let isSearch = false;
-
-    if (categoryId && mongoose.Types.ObjectId.isValid(categoryId.toString()))
-      isCategory = true;
+    let isValidIds;
+    console.log(typeof categoryId, Array(categoryId));
+    let categoryIds =
+      categoryId && typeof categoryId === "string"
+        ? categoryId.split(",")
+        : undefined;
+    if (Array.isArray(categoryIds)) {
+      console.log("array");
+      if (categoryIds.length > 0) {
+        isValidIds = categoryIds.filter((id) => {
+          return mongoose.Types.ObjectId.isValid(id.toString());
+        });
+        if (isValidIds.length > 0) {
+          isCategory = true;
+        }
+      }
+    }
+    console.log(isCategory, isSearch, isValidIds, searchTerm);
+    // if (categoryId && mongoose.Types.ObjectId.isValid(categoryId.toString()))
+    //   isCategory = true;
     if (searchTerm && !!searchTerm) isSearch = true;
     pipeline = pipelineGenrator(
       isCategory,
       isSearch,
-      categoryId?.toString(),
+      isValidIds,
       searchTerm?.toString()
     );
     console.log(pipeline, "pipeline");
@@ -184,7 +215,7 @@ export const getRecipeByQuery = asyncHandler(
         .skip((Number(pageNumber) - 1) * Number(limit))
         .limit(Number(limit))
         .sort({ _id: -1 });
-      res.status(StatusCodes.OK).json({ count: totalCount[0].count, recipes });
+      res.status(StatusCodes.OK).json({ count: totalCount, recipes });
     } catch (error) {
       console.error("Error in getRecipeByQuery:", error);
       res
