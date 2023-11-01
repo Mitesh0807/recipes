@@ -444,7 +444,7 @@ export const updateRecipe = asyncHandler(
     recipe.description = description || recipe.description;
     recipe.cookingTime = cookingTime || recipe.cookingTime;
     recipe.ingredients = ingredients || recipe.ingredients;
-    const response = await Recipe.updateOne({ _id }, req.body, {
+    const response = await Recipe.findOneAndUpdate({ _id }, req.body, {
       new: true,
     }).populate("categoryId");
     res
